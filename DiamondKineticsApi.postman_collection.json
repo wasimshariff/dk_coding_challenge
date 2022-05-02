@@ -1,0 +1,89 @@
+{
+	"info": {
+		"_postman_id": "2139f907-6c6a-4d84-81f5-6a9aac4ee981",
+		"name": "DiamondKineticsApi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "searchContinuityAboveValue",
+			"item": [
+				{
+					"name": "SuccessRequest",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "searchContinuityAboveValueTwoSignals",
+			"item": [
+				{
+					"name": "SuccessRequest",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "backSearchContinuityWithinRange",
+			"item": [
+				{
+					"name": "SuccessRequest",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "searchMultiContinuityWithInRange",
+			"item": [
+				{
+					"name": "SuccessRequest",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
