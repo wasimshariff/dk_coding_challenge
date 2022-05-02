@@ -1,6 +1,6 @@
 package com.dk.controller;
 
-import com.dk.SwingDataConstant;
+import com.dk.constant.SwingDataConstant;
 import com.dk.model.MultiContinuityModel;
 import com.dk.service.SwingDataService;
 import org.springframework.beans.factory.annotation.Autowired;
