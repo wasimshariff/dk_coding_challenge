@@ -24,6 +24,7 @@ Gradle 7.+
    threshold. Return the first index where data has values that meet this criteria for at least
    winLength samples_
 
+   eg: http://localhost:8080/api/searchContinuityAboveValue?beginIndex=5&endIndex=500&threshold=0.5&winLength=10&dataValue=GET_ACC_X_AXIS
 
 2. **/api/searchContinuityAboveValueTwoSignals**
 
@@ -31,6 +32,8 @@ Gradle 7.+
    Desc:  From indexBegin to indexEnd, search data1 for values that are higher than threshold1 and also search data2 for values
    that are higher than threshold2. Return the first index where both data1 and data2 have
    values that meet these criteria for at least winLength samples._
+
+   eg: http://localhost:8080/api/searchContinuityAboveValueTwoSignals?beginIndex=105&endIndex=500&threshold=0.3&winLength=10&dataValue=GET_ACC_X_AXIS&dataValue2=GET_GYRO_X_AXIS&threshold2=0.1
 
 
 3. **/api/backSearchInRange**
@@ -41,12 +44,16 @@ Gradle 7.+
    thresholdLo and lower than thresholdHi. Return the first index where data has values that
    meet this criteria for at least winLength samples._
 
+   eg: http://localhost:8080/api/backSearchInRange?beginIndex=500&endIndex=100&thresholdLo=0.99&winLength=10&dataValue=GET_ACC_X_AXIS&thresholdHi=2.0
+
 
 4. /api/searchMultiInRange
    _RequestParams: (data, indexBegin, indexEnd, thresholdLo, thresholdHi, winLength)
    Desc: From indexBegin to indexEnd, search data for values that are higher than thresholdLo and lower than thresholdHi. Return the the
    starting index and ending index of all continuous samples that meet this criteria for at least
    winLength data points._
+
+   eg: http://localhost:8080/api/searchMultiInRange?beginIndex=100&endIndex=1000&thresholdLo=0.99&winLength=10&dataValue=GET_ACC_X_AXIS&thresholdHi=1.6
 
 ## Additional Resources
   Attached PostMan API Collection in the project.
