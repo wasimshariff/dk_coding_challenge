@@ -1,21 +1,21 @@
 package com.dk.service.impl;
 
 import com.dk.constant.SwingDataFunction;
+import com.dk.model.ContinuityRequest;
 import com.dk.model.ContinuityResponse;
 import com.dk.repository.SwingDataRepository;
 import com.dk.service.SwingDataService;
 import com.dk.util.AppUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 
 @Service
 public class SwingDataServiceImpl implements SwingDataService {
-    private final Logger logger = LoggerFactory.getLogger(SwingDataServiceImpl.class);
     @Autowired
     private SwingDataRepository repository;
 
@@ -31,14 +31,15 @@ public class SwingDataServiceImpl implements SwingDataService {
      */
     public int searchContinuityAboveValue(SwingDataFunction input, int beginIndex, int endIndex, float threshold, int winLength) throws Exception {
         List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
-        float[] thresholdArray = new float[]{threshold};
-        BiFunction<Float, float[], Boolean> continuityChecker = (readingVal, thresholdVal) -> readingVal > thresholdVal[0];
-        List<ContinuityResponse> continuityResponse = AppUtil.findContinuityResponse(sensorReadingsByAxis, beginIndex, endIndex, thresholdArray, winLength, continuityChecker, false);
-
-        if (!continuityResponse.isEmpty()) {
-            return continuityResponse.get(0).getBeginIndex();
-        }
-        return -1;
+        ContinuityRequest request = new ContinuityRequest();
+        request.setSensorReadingList(sensorReadingsByAxis);
+        request.setThresholdList(Arrays.asList(threshold));
+        BiPredicate<Float, List<Float>> continuityPredicate = (inputVal, thresholdList) -> inputVal > thresholdList.get(0);
+        request.setContinuityPredicate(continuityPredicate);
+        List<ContinuityRequest> continuityRequests = new ArrayList<>();
+        continuityRequests.add(request);
+        List<ContinuityResponse> continuityResponse = AppUtil.findContinuityResponse(continuityRequests, beginIndex, endIndex, winLength, true, false);
+        return !continuityResponse.isEmpty() ? continuityResponse.get(0).getBeginIndex() : -1;
     }
 
     /**
@@ -55,38 +56,23 @@ public class SwingDataServiceImpl implements SwingDataService {
      */
     public int searchContinuityAboveValueTwoSignals(SwingDataFunction input, SwingDataFunction input2,
                                                     int beginIndex, int endIndex, float threshold1, float threshold2, int winLength) throws Exception {
-
         List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
         List<Float> sensorReadingsByAxis2 = input2.getReading(this.repository.getSwingData());
-
-        AppUtil.validateInput(sensorReadingsByAxis, beginIndex, endIndex);
-        AppUtil.validateInput(sensorReadingsByAxis2, beginIndex, endIndex);
-
-        List<Float> subList = sensorReadingsByAxis.subList(beginIndex, endIndex);
-        List<Float> subList2 = sensorReadingsByAxis2.subList(beginIndex, endIndex);
-
-        if (subList.size() < winLength || subList2.size() < winLength) {
-            return -1;
-        }
-        int i = 0, seq = 0, foundIndex = -1;
-        while (i < subList.size() && i < subList2.size()) {
-            if (subList.get(i) > threshold1 && subList2.get(i) > threshold2) {
-                seq++;
-            } else {
-                seq = 0;
-            }
-            i++;
-            if (seq == winLength) {
-                foundIndex = i - winLength;
-                break;
-            }
-        }
-        if (foundIndex > -1) {
-            // adding the begin Index to get the right index , as we are doing search on subList.
-            foundIndex = foundIndex + beginIndex;
-            logger.info("Found Multi Continuity index at: {} ", foundIndex);
-        }
-        return foundIndex;
+        List<ContinuityRequest> continuityRequests = new ArrayList<>();
+        ContinuityRequest request = new ContinuityRequest();
+        request.setSensorReadingList(sensorReadingsByAxis);
+        request.setThresholdList(Arrays.asList(threshold1));
+        BiPredicate<Float, List<Float>> continuityPredicate = (inputVal, thresholdList) -> inputVal > thresholdList.get(0);
+        request.setContinuityPredicate(continuityPredicate);
+        continuityRequests.add(request);
+        ContinuityRequest request2 = new ContinuityRequest();
+        request2.setSensorReadingList(sensorReadingsByAxis2);
+        request2.setThresholdList(Arrays.asList(threshold2));
+        BiPredicate<Float, List<Float>> continuityPredicate2 = (inputVal, thresholdList) -> inputVal > thresholdList.get(0);
+        request2.setContinuityPredicate(continuityPredicate2);
+        continuityRequests.add(request2);
+        List<ContinuityResponse> continuityResponse = AppUtil.findContinuityResponse(continuityRequests, beginIndex, endIndex, winLength, true, false);
+        return !continuityResponse.isEmpty() ? continuityResponse.get(0).getBeginIndex() : -1;
     }
 
     /**
@@ -102,36 +88,16 @@ public class SwingDataServiceImpl implements SwingDataService {
      * @return
      */
     public int backSearchContinuityWithinRange(SwingDataFunction input, int beginIndex, int endIndex, float thresholdLo, float thresholdHi, int winLength) throws Exception {
-
         List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
-
-        if (beginIndex < endIndex || sensorReadingsByAxis.size() < beginIndex) {
-            throw new Exception("Invalid Index values");
-        }
-        AppUtil.validateInput(sensorReadingsByAxis, endIndex, beginIndex);
-
-        List<Float> subList = sensorReadingsByAxis.subList(endIndex, beginIndex);
-
-        int i = subList.size()-1, seq = 0, foundIndex = -1;
-        while (i >= 0) {
-            if (subList.get(i) > thresholdLo && subList.get(i) < thresholdHi) {
-                seq++;
-            } else {
-                seq = 0;
-            }
-            i--;
-            if (seq == winLength) {
-                foundIndex = i + winLength;
-                break;
-            }
-        }
-        if (foundIndex > -1) {
-            // adding the end Index to get the right index , as we are doing search on subList.
-            // As endIndex is smaller than beginIndex.
-            foundIndex = foundIndex + endIndex;
-            logger.info("Found Back Continuity index at: {} ", foundIndex);
-        }
-        return foundIndex;
+        ContinuityRequest request = new ContinuityRequest();
+        request.setSensorReadingList(sensorReadingsByAxis);
+        request.setThresholdList(Arrays.asList(thresholdLo, thresholdHi));
+        BiPredicate<Float, List<Float>> continuityPredicate = (inputVal, thresholdList) -> inputVal > thresholdList.get(0) && inputVal < thresholdList.get(1);
+        request.setContinuityPredicate(continuityPredicate);
+        List<ContinuityRequest> continuityRequests = new ArrayList<>();
+        continuityRequests.add(request);
+        List<ContinuityResponse> continuityResponse = AppUtil.findContinuityResponse(continuityRequests, beginIndex, endIndex, winLength, false, false);
+        return continuityResponse.isEmpty() ? -1 : continuityResponse.get(0).getBeginIndex();
     }
 
     /**
@@ -148,9 +114,14 @@ public class SwingDataServiceImpl implements SwingDataService {
      */
     public List<ContinuityResponse> searchMultiContinuityWithInRange(SwingDataFunction input, int beginIndex, int endIndex, float thresholdLo, float thresholdHi, int winLength) throws Exception {
         List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
-        float[] thresholdArray = new float[]{thresholdLo, thresholdHi};
-        BiFunction<Float, float[], Boolean> continuityChecker = (readingVal, thresholdVal) -> readingVal > thresholdVal[0] && readingVal < thresholdVal[1];
-        return AppUtil.findContinuityResponse(sensorReadingsByAxis, beginIndex, endIndex, thresholdArray, winLength, continuityChecker, true);
+        ContinuityRequest request = new ContinuityRequest();
+        request.setSensorReadingList(sensorReadingsByAxis);
+        request.setThresholdList(Arrays.asList(thresholdLo, thresholdHi));
+        BiPredicate<Float, List<Float>> continuityPredicate = (inputVal, thresholdList) -> inputVal > thresholdList.get(0) && inputVal < thresholdList.get(1);
+        request.setContinuityPredicate(continuityPredicate);
+        List<ContinuityRequest> continuityRequests = new ArrayList<>();
+        continuityRequests.add(request);
+        return AppUtil.findContinuityResponse(continuityRequests, beginIndex, endIndex, winLength, true, true);
     }
 
 }
