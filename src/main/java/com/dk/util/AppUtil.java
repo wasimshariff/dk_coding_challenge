@@ -1,12 +1,15 @@
 package com.dk.util;
 
+import com.dk.constant.SwingDataFunction;
 import com.dk.model.ContinuityRequest;
 import com.dk.model.ContinuityResponse;
+import com.dk.model.SensorReading;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AppUtil {
 
@@ -66,4 +69,9 @@ public class AppUtil {
         }
     }
 
+    public static List<Float> getReadingByAxis(List<SensorReading> swingData, SwingDataFunction input) {
+        return swingData.stream()
+                .map(input::getReading)
+                .collect(Collectors.toList());
+    }
 }

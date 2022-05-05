@@ -2,9 +2,8 @@ package com.dk.constant;
 
 import com.dk.model.SensorReading;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public enum SwingDataFunction {
     ACC_X_AXIS(sensorReading -> sensorReading.getAccelerometerReading().getxAxis()),
@@ -23,9 +22,9 @@ public enum SwingDataFunction {
     /*public Function<SensorReading, Float> getLambdaFunction() {
         return lambdaFunction;
     }*/
-    public List<Float> getReading(List<SensorReading> sensorReadings) {
-        return sensorReadings.stream()
+    public Float getReading(SensorReading sensorReading) {
+        return Optional.of(sensorReading)
                 .map(lambdaFunction)
-                .collect(Collectors.toList());
+                .orElse(null);
     }
 }

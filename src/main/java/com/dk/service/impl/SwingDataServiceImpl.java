@@ -30,7 +30,7 @@ public class SwingDataServiceImpl implements SwingDataService {
      * @return
      */
     public int searchContinuityAboveValue(SwingDataFunction input, int beginIndex, int endIndex, float threshold, int winLength) throws Exception {
-        List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
+        List<Float> sensorReadingsByAxis = AppUtil.getReadingByAxis(this.repository.getSwingData(), input);
         ContinuityRequest request = new ContinuityRequest();
         request.setSensorReadingList(sensorReadingsByAxis);
         request.setThresholdList(Arrays.asList(threshold));
@@ -56,8 +56,8 @@ public class SwingDataServiceImpl implements SwingDataService {
      */
     public int searchContinuityAboveValueTwoSignals(SwingDataFunction input, SwingDataFunction input2,
                                                     int beginIndex, int endIndex, float threshold1, float threshold2, int winLength) throws Exception {
-        List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
-        List<Float> sensorReadingsByAxis2 = input2.getReading(this.repository.getSwingData());
+        List<Float> sensorReadingsByAxis = AppUtil.getReadingByAxis(this.repository.getSwingData(), input);
+        List<Float> sensorReadingsByAxis2 = AppUtil.getReadingByAxis(this.repository.getSwingData(), input2);
         List<ContinuityRequest> continuityRequests = new ArrayList<>();
         ContinuityRequest request = new ContinuityRequest();
         request.setSensorReadingList(sensorReadingsByAxis);
@@ -88,7 +88,7 @@ public class SwingDataServiceImpl implements SwingDataService {
      * @return
      */
     public int backSearchContinuityWithinRange(SwingDataFunction input, int beginIndex, int endIndex, float thresholdLo, float thresholdHi, int winLength) throws Exception {
-        List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
+        List<Float> sensorReadingsByAxis = AppUtil.getReadingByAxis(this.repository.getSwingData(), input);
         ContinuityRequest request = new ContinuityRequest();
         request.setSensorReadingList(sensorReadingsByAxis);
         request.setThresholdList(Arrays.asList(thresholdLo, thresholdHi));
@@ -113,7 +113,7 @@ public class SwingDataServiceImpl implements SwingDataService {
      * @return
      */
     public List<ContinuityResponse> searchMultiContinuityWithInRange(SwingDataFunction input, int beginIndex, int endIndex, float thresholdLo, float thresholdHi, int winLength) throws Exception {
-        List<Float> sensorReadingsByAxis = input.getReading(this.repository.getSwingData());
+        List<Float> sensorReadingsByAxis = AppUtil.getReadingByAxis(this.repository.getSwingData(), input);
         ContinuityRequest request = new ContinuityRequest();
         request.setSensorReadingList(sensorReadingsByAxis);
         request.setThresholdList(Arrays.asList(thresholdLo, thresholdHi));
